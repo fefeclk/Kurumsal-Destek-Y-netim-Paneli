@@ -43,10 +43,15 @@ class TicketPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(?User $user, Ticket $ticket): bool
+    public function delete(?User $user, Ticket $ticket)
     {
-        // IDOR Koruması: Sadece admin girişi yapmış (session'ı olan) kişi silebilir
-        return session('is_admin_logged_in') === true || file_exists(storage_path('framework/admin_auth.lock'));
+        // 1. IT Admin giriş yapmışsa, IDOR kalkanını indir ve bileti silmesine İZİN VER!
+        if (request()->session()->get('it_admin_logged_in')) {
+            return true;
+        }
+
+        // 2. Admin değilse 403 fırlat ve engelle
+        return false;
     }
 
 
