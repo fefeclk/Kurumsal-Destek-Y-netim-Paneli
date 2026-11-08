@@ -255,7 +255,7 @@
         </div>
     </div>
 
-    <!-- GİZLİ ADMİN ŞİFRE SIFIRLAMA PENCERESİ -->
+    {{-- GİZLİ ADMİN ŞİFRE SIFIRLAMA PENCERESİ --}}
     <div id="admin_sifre_modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-4">
         <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 w-full max-w-sm shadow-2xl relative">
             <button type="button" onclick="document.getElementById('admin_sifre_modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-lg">✕</button>
