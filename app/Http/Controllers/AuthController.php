@@ -11,63 +11,34 @@ use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
-    public function loginForm(Request $request)
-    {
-        if ($request->session()->get('it_admin_logged_in')) return redirect()->route('admin.panel');
-        return view('admin-login');
-    }
-
-    public function loginPost(Request $request)
-    {
-        $kullanici = $request->input('kullanici_adi');
-        $sifre = $request->input('sifre');
-
-        $gecerliKullanici = config('kurumsal.admin_user');
-        $gecerliSifre = config('kurumsal.admin_pass');
-
-        if ($kullanici === $gecerliKullanici && $sifre === $gecerliSifre) {
-            $request->session()->put('it_admin_logged_in', true);
-            $request->session()->put('it_admin_user', $kullanici);
-            return redirect()->route('admin.panel')->with('basari', 'IT Admin oturumu başarıyla açıldı.');
-        }
-
-        // YENİ: Başarısız admin girişi loglama (OWASP A09)
-        Log::warning('Başarısız IT Admin giriş denemesi', [
-            'kullanici_adi' => $kullanici,
-            'ip' => $request->ip()
-        ]);
-        
-        return redirect()->back()->with('hata', 'Hatalı kullanıcı adı veya şifre!');
-    }
-
-    public function logout(Request $request)
-    {
-        $request->session()->forget(['it_admin_logged_in', 'it_admin_user']);
-        return redirect()->route('admin.login')->with('basari', 'Oturum kapatıldı.');
-    }
-
+    // YENİ: Tek bir giriş formumuz var (Eskiden iki taneydi)
     public function calisanLoginForm()
     {
         return view('calisan-login');
     }
 
+    // YENİ: Akıllı Giriş Sistemi (Admini ve Çalışanı ayırır)
     public function calisanLoginPost(Request $request)
     {
-        $credentials = $request->validate(['email' => 'required|email', 'password' => 'required']);
-        
-        if (Auth::attempt($credentials)) {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $request->session()->regenerate();
-            if ($request->user() && is_null($request->user()->email_verified_at)) {
-                $kod = random_int(100000, 999999);
-                $request->session()->put('2fa_kodu', $kod);
-                Mail::to($request->user()->email)->send(new TwoFactorMail($kod));
-                return redirect()->route('2fa.form');
+
+            // Giriş yapan kişi admin mi?
+            if (Auth::user()->is_admin) {
+                return redirect()->route('admin.panel')->with('basari', 'Yönetici Paneline Hoş Geldiniz!');
             }
-            return redirect()->route('calisan.form')->with('basari', 'Sisteme başarıyla giriş yapıldı.');
+            
+            // Değilse standart çalışan sayfasına yolla
+            return redirect()->route('calisan.form')->with('basari', 'Sisteme başarıyla giriş yaptınız.');
         }
-        
-        // YENİ: Başarısız çalışan girişi loglama (OWASP A09)
-        Log::warning('Başarısız çalışan giriş denemesi', [
+
+        // Başarısız girişi loglama (OWASP A09)
+        Log::warning('Başarısız giriş denemesi', [
             'email' => $request->input('email'),
             'ip' => $request->ip()
         ]);
@@ -75,6 +46,7 @@ class AuthController extends Controller
         return back()->with('hata', 'E-posta veya şifre hatalı!');
     }
 
+    // YENİ: Tek bir çıkış sistemimiz var
     public function calisanLogout(Request $request)
     {
         Auth::logout();
