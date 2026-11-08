@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TwoFactorMail;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -30,6 +31,12 @@ class AuthController extends Controller
             return redirect()->route('admin.panel')->with('basari', 'IT Admin oturumu başarıyla açıldı.');
         }
 
+        // YENİ: Başarısız admin girişi loglama (OWASP A09)
+        Log::warning('Başarısız IT Admin giriş denemesi', [
+            'kullanici_adi' => $kullanici,
+            'ip' => $request->ip()
+        ]);
+        
         return redirect()->back()->with('hata', 'Hatalı kullanıcı adı veya şifre!');
     }
 
@@ -58,6 +65,13 @@ class AuthController extends Controller
             }
             return redirect()->route('calisan.form')->with('basari', 'Sisteme başarıyla giriş yapıldı.');
         }
+        
+        // YENİ: Başarısız çalışan girişi loglama (OWASP A09)
+        Log::warning('Başarısız çalışan giriş denemesi', [
+            'email' => $request->input('email'),
+            'ip' => $request->ip()
+        ]);
+        
         return back()->with('hata', 'E-posta veya şifre hatalı!');
     }
 
