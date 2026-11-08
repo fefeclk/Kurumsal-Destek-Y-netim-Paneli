@@ -2,9 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebTicketController;
+use App\Http\Controllers\AuthController;
 
 // 1. ÇALIŞAN GİRİŞ (LOGIN) ROTALARI
-Route::get('/login', [WebTicketController::class, 'calisanLoginForm'])->name('login');
+Route::get('/login', [AuthController::class, 'calisanLoginForm'])->name('login');
 Route::post('/login', [WebTicketController::class, 'calisanLoginPost'])->middleware('throttle:5,1')->name('calisan.login.post');
 Route::post('/logout', [WebTicketController::class, 'calisanLogout'])->name('calisan.logout');
 Route::post('/sifre-sifirlama-talep', [WebTicketController::class, 'sifreSifirlamaTalep'])->name('calisan.sifre.talep');
