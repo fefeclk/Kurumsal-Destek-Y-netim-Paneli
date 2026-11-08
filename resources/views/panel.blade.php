@@ -37,7 +37,6 @@
             </div>
             
             <div class="flex flex-wrap items-center gap-2">
-                {{-- YENİ: Admin Şifre Değiştirme Butonu --}}
                 <button type="button" onclick="document.getElementById('admin_sifre_modal').classList.remove('hidden')" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5 shadow">
                     🔑 Admin Şifresi
                 </button>
@@ -119,7 +118,13 @@
                         @foreach($calisanlar as $c)
                             <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700 flex flex-col justify-between gap-3 shadow-sm">
                                 <div>
-                                    <div class="font-bold text-white text-sm">👤 {{ $c->name }}</div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="font-bold text-white text-sm">👤 {{ $c->name }}</div>
+                                        {{-- YENİ: Kimin Admin Olduğunu Gösteren Rozet --}}
+                                        @if($c->is_admin)
+                                            <span class="bg-purple-900/60 text-purple-300 border border-purple-700 text-[9px] px-1.5 py-0.5 rounded-md font-bold uppercase">Admin</span>
+                                        @endif
+                                    </div>
                                     <div class="text-xs text-slate-400 mt-0.5">📧 {{ $c->email }}</div>
                                 </div>
                                 <div class="flex justify-between items-center border-t border-slate-700/50 pt-3">
@@ -130,6 +135,15 @@
                                     @endif
 
                                     <div class="flex gap-2">
+                                        {{-- YENİ: YETKİ DEĞİŞTİRME BUTONU --}}
+                                        <form action="{{ route('admin.yetki.degistir', $c->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" title="{{ $c->is_admin ? 'Admin yetkisini al' : 'Admin yetkisi ver' }}" class="text-[10px] px-2 py-1 rounded transition border 
+                                                {{ $c->is_admin ? 'text-purple-400 hover:text-white bg-purple-950/30 hover:bg-purple-600 border-purple-900/50' : 'text-blue-400 hover:text-white bg-blue-950/30 hover:bg-blue-600 border-blue-900/50' }}">
+                                                {{ $c->is_admin ? 'Yetki Al' : 'Admin Yap' }}
+                                            </button>
+                                        </form>
+
                                         <form action="{{ route('admin.calisan.sifirla', $c->id) }}" method="POST">
                                             @csrf
                                             <button type="submit" title="Manuel Şifre Sıfırla" class="text-[10px] text-amber-400 hover:text-white bg-amber-950/30 hover:bg-amber-600 border border-amber-900/50 px-2 py-1 rounded transition">
@@ -183,7 +197,7 @@
                     </div>
 
                     <div id="detay-ticket_{{ $t->id }}" class="hidden p-5 border-t border-slate-700/80 space-y-3 bg-slate-800/40">
-                        <div class="text-xs text-slate-400 mb-1">🏢 {{ $t->departman }} • 🏷️ {{ $t->kategori }}</div>
+                        <div class="text-xs text-slate-400 mb-1">🏢 {{ $t->departman }}🏷️ {{ $t->kategori }}</div>
                         <p class="text-sm text-slate-200 bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/50">"{{ $t->ariza_bildirimi }}"</p>
 
                         @if($t->kategori === 'Şifre Sıfırlama Talebi')

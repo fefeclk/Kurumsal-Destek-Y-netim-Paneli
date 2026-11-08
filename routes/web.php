@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
 
 // 4. KORUMALI IT ADMIN PANELİ
 Route::prefix('admin')->middleware(['auth', IsAdminMiddleware::class])->group(function () {
+    Route::post('/admin-sifre-degistir', [AdminController::class, 'adminSifreDegistir'])->name('admin.sifre.degistir');
     Route::get('/', [AdminController::class, 'adminPanel'])->name('admin.panel');
     Route::get('/sss', [AdminController::class, 'sss'])->name('admin.sss');
     Route::post('/calisan-ekle', [AdminController::class, 'calisanEkle'])->name('admin.calisan.ekle');

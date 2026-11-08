@@ -6,19 +6,13 @@ use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
-    private function checkAdmin(Request $request)
-    {
-        if (!$request->session()->get('it_admin_logged_in')) return false;
-        return true;
-    }
-
     public function adminPanel(Request $request)
     {
-        if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
         $tickets = Ticket::latest()->get();
         $calisanlar = User::latest()->get(); 
         return view('panel', compact('tickets', 'calisanlar'));
@@ -26,43 +20,11 @@ class AdminController extends Controller
 
     public function sss(Request $request)
     {
-        if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
         return view('sss');
-    }
-
-    public function adminSifreDegistir(Request $request)
-    {
-        if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
-        
-        $request->validate([
-            'eski_sifre' => 'required',
-            'yeni_sifre' => 'required|min:6'
-        ]);
-
-        $mevcutSifre = config('kurumsal.admin_pass');
-
-        if ($request->eski_sifre !== $mevcutSifre) {
-            return back()->with('hata', 'Eski şifrenizi yanlış girdiniz!');
-        }
-
-        $path = base_path('.env');
-        if (file_exists($path)) {
-            $env = file_get_contents($path);
-            if (strpos($env, 'ADMIN_PASS=') !== false) {
-                $env = preg_replace('/^ADMIN_PASS=.*/m', 'ADMIN_PASS=' . $request->yeni_sifre, $env);
-            } else {
-                $env .= "\nADMIN_PASS=" . $request->yeni_sifre;
-            }
-            file_put_contents($path, $env);
-        }
-        
-        return back()->with('basari', '🔒 IT Admin şifresi başarıyla değiştirildi! Yeni girişlerde bu şifreyi kullanın.');
     }
 
     public function calisanEkle(Request $request)
     {
-        if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
-        
         $request->validate([
             'name' => 'required|string|max:255', 
             'email' => 'required|string|email|max:255|unique:users'
@@ -80,15 +42,12 @@ class AdminController extends Controller
 
     public function calisanSil(Request $request, User $user)
     {
-        if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
         $user->delete();
         return redirect()->back()->with('basari', 'Çalışan sistemden başarıyla silindi!');
     }
 
     public function sifreSifirlaOto(Request $request, Ticket $ticket)
     {
-        if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
-
         $user = User::find($ticket->kok_neden);
         if ($user) {
             $rastgeleSifre = Str::random(8);
@@ -104,10 +63,44 @@ class AdminController extends Controller
 
     public function calisanSifreSifirla(Request $request, User $user)
     {
-        if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
         $rastgeleSifre = Str::random(8);
         $user->password = Hash::make($rastgeleSifre);
         $user->save();
         return redirect()->back()->with('basari', "{$user->name} adlı çalışanın YENİ ŞİFRESİ: {$rastgeleSifre}");
+    }
+
+    public function adminSifreDegistir(Request $request)
+    {
+        $request->validate([
+            'eski_sifre' => 'required',
+            'yeni_sifre' => 'required|min:6'
+        ]);
+    /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if (!Hash::check($request->eski_sifre, $user->password)) {
+            return back()->with('hata', 'Mevcut (eski) şifrenizi yanlış girdiniz!');
+        }
+
+        $user->password = Hash::make($request->yeni_sifre);
+        $user->save();
+
+        return back()->with('basari', 'Admin şifreniz başarıyla güncellendi!');
+    }
+
+    // YENİ: Arkadaşlarına Admin yetkisi verme veya yetkisini alma fonksiyonu
+    public function yetkiDegistir(Request $request, User $user)
+    {
+        // Kendi kendini yanlışlıkla adminlikten düşürmeni engeller
+        if (Auth::id() === $user->id) {
+            return back()->with('hata', 'Kendi yetkinizi değiştiremezsiniz!');
+        }
+
+        // Yetkiyi tersine çevir (Adminse çalışan yap, çalışansa admin yap)
+        $user->is_admin = !$user->is_admin;
+        $user->save();
+
+        $durum = $user->is_admin ? 'Admin yapıldı' : 'Standart çalışan yapıldı';
+        return back()->with('basari', "{$user->name} adlı kullanıcının yetkisi güncellendi: {$durum}!");
     }
 }
