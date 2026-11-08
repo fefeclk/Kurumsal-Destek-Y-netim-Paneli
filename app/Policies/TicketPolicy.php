@@ -2,6 +2,9 @@
 
 namespace App\Policies;
 
+
+use App\Models\Ticket;
+use App\Policies\TicketPolicy;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;

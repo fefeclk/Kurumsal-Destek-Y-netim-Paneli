@@ -2,13 +2,15 @@
 
 namespace App\Providers;
 
+use App\Models\Ticket;
+use App\Policies\TicketPolicy;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
+    protected $policies = [
+        Ticket::class => TicketPolicy::class,
+    ];
     public function register(): void
     {
         //
