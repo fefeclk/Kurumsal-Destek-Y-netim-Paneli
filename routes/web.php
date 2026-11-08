@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebTicketController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
 
 // 1. ÇALIŞAN GİRİŞ (LOGIN) ROTALARI
 Route::get('/login', [AuthController::class, 'calisanLoginForm'])->name('login');

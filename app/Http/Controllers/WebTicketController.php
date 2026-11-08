@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ticket;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use App\Models\User;
 
 class WebTicketController extends Controller
 {
-    // IDOR Güvenlik kalkanı için bu satır şart (Okulun test sisteminin istediği özellik)
     use \Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
     private function check2FA(Request $request)
@@ -35,7 +33,6 @@ class WebTicketController extends Controller
     {
         if ($this->check2FA($request)) return redirect()->route('2fa.form');
 
-        // HATA DÜZELTİLDİ: \vert{} yazıları normal dik çizgiye (|) çevrildi
         $request->validate([
             'calisan_ad_soyad' => 'required|string|max:255', 
             'departman' => 'required|string', 
@@ -59,50 +56,6 @@ class WebTicketController extends Controller
         return redirect()->back()->with('basari', 'Talebiniz alınmıştır (Kayıt No: ' . $ticket->ticket_kodu . ').');
     }
 
-    public function adminPanel(Request $request)
-    {
-        if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
-        $tickets = Ticket::latest()->get();
-        $calisanlar = User::latest()->get(); 
-        return view('panel', compact('tickets', 'calisanlar'));
-    }
-
-    public function sss(Request $request)
-    {
-        if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
-        return view('sss');
-    }
-
-    // YENİ: Admin Şifresini Değiştirme (.env dosyasını yeniden yazar)
-    public function adminSifreDegistir(Request $request)
-    {
-        if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
-        
-        $request->validate([
-            'eski_sifre' => 'required',
-            'yeni_sifre' => 'required|min:6'
-        ]);
-
-       $mevcutSifre = config('kurumsal.admin_pass');
-
-        if ($request->eski_sifre !== $mevcutSifre) {
-            return back()->with('hata', 'Eski şifrenizi yanlış girdiniz!');
-        }
-
-        $path = base_path('.env');
-        if (file_exists($path)) {
-            $env = file_get_contents($path);
-            if (strpos($env, 'ADMIN_PASS=') !== false) {
-                $env = preg_replace('/^ADMIN_PASS=.*/m', 'ADMIN_PASS=' . $request->yeni_sifre, $env);
-            } else {
-                $env .= "\nADMIN_PASS=" . $request->yeni_sifre;
-            }
-            file_put_contents($path, $env);
-        }
-        
-        return back()->with('basari', '🔒 IT Admin şifresi başarıyla değiştirildi! Yeni girişlerde bu şifreyi kullanın.');
-    }
-
     public function durumGuncelle(Request $request, Ticket $ticket)
     {
         if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
@@ -112,47 +65,16 @@ class WebTicketController extends Controller
 
     public function destroy(Request $request, Ticket $ticket)
     {
-        // GÜVENLİK (IDOR): Yetkisi olmayanların bilet silmesi engellendi
         $this->authorize('delete', $ticket);
-
         if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
         $ticket->delete();
         return redirect()->back()->with('basari', 'Kayıt silindi.');
-    }
-
-    public function calisanEkle(Request $request)
-    {
-        if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
-        
-        // HATA DÜZELTİLDİ: \vert{} yazıları normal dik çizgiye (|) çevrildi
-        $request->validate([
-            'name' => 'required|string|max:255', 
-            'email' => 'required|string|email|max:255|unique:users'
-        ]);
-        
-        $rastgeleSifre = Str::random(8);
-
-        $user = new User();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = Hash::make($rastgeleSifre);
-        $user->save();
-
-        return redirect()->back()->with('basari', "Kayıt Başarılı! {$request->name} için üretilen OTOMATİK ŞİFRE: {$rastgeleSifre}");
-    }
-
-    public function calisanSil(Request $request, User $user)
-    {
-        if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
-        $user->delete();
-        return redirect()->back()->with('basari', 'Çalışan sistemden başarıyla silindi!');
     }
 
     public function sifreSifirlamaTalep(Request $request)
     {
         $request->validate(['email' => 'required|email']);
         $user = User::where('email', $request->email)->first();
-        
         if (!$user) return back()->with('hata', 'Bu e-posta adresine ait bir hesap bulunamadı!');
 
         Ticket::create([
@@ -170,41 +92,11 @@ class WebTicketController extends Controller
         return back()->with('basari', 'Şifre sıfırlama talebiniz Admin paneline (Ticket olarak) iletildi.');
     }
 
-    public function sifreSifirlaOto(Request $request, Ticket $ticket)
-    {
-        if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
-
-        $user = User::find($ticket->kok_neden);
-        if ($user) {
-            $rastgeleSifre = Str::random(8);
-            $user->password = Hash::make($rastgeleSifre);
-            $user->save();
-            $mesaj = "Talep onaylandı! {$user->name} adlı çalışanın YENİ ŞİFRESİ: {$rastgeleSifre} (Lütfen çalışana iletin)";
-        } else {
-            $mesaj = "Kullanıcı hesabı zaten silinmiş, sadece talep kapatıldı.";
-        }
-        $ticket->delete(); 
-        return redirect()->back()->with('basari', $mesaj);
-    }
-
-    public function calisanSifreSifirla(Request $request, User $user)
-    {
-        if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
-        $rastgeleSifre = Str::random(8);
-        $user->password = Hash::make($rastgeleSifre);
-        $user->save();
-        return redirect()->back()->with('basari', "{$user->name} adlı çalışanın YENİ ŞİFRESİ: {$rastgeleSifre}");
-    }
-
     public function sifreDegistir(Request $request)
     {
         if ($this->check2FA($request)) return redirect()->route('2fa.form');
         
-        // HATA DÜZELTİLDİ: \vert{} yazıları normal dik çizgiye (|) çevrildi
-        $request->validate([
-            'yeni_sifre' => 'required|string|min:6'
-        ]);
-        
+        $request->validate(['yeni_sifre' => 'required|string|min:6']);
         $user = $request->user();
         $user->password = Hash::make($request->yeni_sifre);
         $user->save();
