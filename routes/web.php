@@ -8,8 +8,7 @@ use App\Http\Controllers\AuthController;
 Route::get('/login', [AuthController::class, 'calisanLoginForm'])->name('login');
 Route::post('/login', [WebTicketController::class, 'calisanLoginPost'])->middleware('throttle:5,1')->name('calisan.login.post');
 Route::post('/logout', [WebTicketController::class, 'calisanLogout'])->name('calisan.logout');
-Route::post('/sifre-sifirlama-talep', [WebTicketController::class, 'sifreSifirlamaTalep'])->name('calisan.sifre.talep');
-
+Route::post('/sifre-sifirlama-talep', [WebTicketController::class, 'sifreSifirlamaTalep'])->middleware('throttle:6,1')->name('calisan.sifre.talep');
 // 2. KORUMALI ÇALIŞAN TİCKET EKRANI
 Route::middleware('auth')->group(function () {
     Route::get('/', [WebTicketController::class, 'createForm'])->name('calisan.form');
