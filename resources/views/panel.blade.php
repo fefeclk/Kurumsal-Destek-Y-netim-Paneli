@@ -37,7 +37,7 @@
             </div>
             
             <div class="flex flex-wrap items-center gap-2">
-                <!-- YENİ: Admin Şifre Değiştirme Butonu -->
+                {{-- YENİ: Admin Şifre Değiştirme Butonu --}}
                 <button type="button" onclick="document.getElementById('admin_sifre_modal').classList.remove('hidden')" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5 shadow">
                     🔑 Admin Şifresi
                 </button>
