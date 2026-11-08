@@ -3,7 +3,7 @@
 ![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
 
 Kurumsal firmaların iç yazılım ve donanım destek süreçlerini (Helpdesk) otomatize etmek, yapay zeka ile önceliklendirmek ve OWASP standartlarında güvenli bir şekilde yönetmek amacıyla geliştirilmiş tam teşekküllü bir **Bilet (Ticket) Yönetim Sistemidir**.
 
@@ -22,14 +22,49 @@ Kurumsal firmaların iç yazılım ve donanım destek süreçlerini (Helpdesk) o
 
 *   **Backend:** PHP 8.x, Laravel 11.x
 *   **Frontend:** Blade Templates, Tailwind CSS, Vanilla JavaScript
-*   **Veritabanı:** MySQL
+*   **Veritabanı:** SQLite (Dosya Tabanlı, Hızlı Kurulum)
 *   **Entegrasyonlar:** OpenAI API, SMTP Mailer
 
-## ⚙️ Yerel Ortamda Kurulum (Local Development)
+## ⚙️ Kurulum (Plug & Play)
 
-Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları izleyin:
+Proje, SQLite kullanılarak harici bir veritabanı sunucusuna ihtiyaç duymadan anında çalışacak şekilde (Plug & Play) tasarlanmıştır:
 
-**1. Depoyu Klonlayın**
+**1. Depoyu Klonlayın ve Klasöre Girin**
 ```bash
 git clone [https://github.com/fefeclk/Kurumsal-Destek-Y-netim-Paneli.git](https://github.com/fefeclk/Kurumsal-Destek-Y-netim-Paneli.git)
 cd Kurumsal-Destek-Y-netim-Paneli
+2. Paketleri Yükleyin
+
+Bash
+composer install
+3. Ayar Dosyasını (Environment) Hazırlayın.env.example dosyasının adını .env olarak değiştirin ve Mail ayarlarınızı girin. (Veritabanı ayarı varsayılan olarak SQLite kalmalıdır):
+
+Kod snippet'i
+DB_CONNECTION=sqlite
+
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=465
+MAIL_USERNAME=kendi.mailiniz@gmail.com
+MAIL_PASSWORD=gmail_uygulama_sifresi
+MAIL_ENCRYPTION=smtps
+4. Kurulum İşlemlerini Tamamlayın
+Aşağıdaki komutları sırasıyla çalıştırarak uygulama anahtarını üretin, veritabanını oluşturun ve tabloları kurun:
+
+Bash
+php artisan key:generate
+php artisan migrate
+5. Sunucuyu Başlatın
+
+Bash
+php artisan serve
+Uygulama http://127.0.0.1:8000 adresinde kullanıma hazır olacaktır.
+
+🧑‍💻 Varsayılan Giriş Bilgileri
+IT Admin Paneli: /admin/login
+
+Kullanıcı Adı: admin (veya .env dosyasındaki ADMIN_USER değeri)
+
+Şifre: 123456 (veya .env dosyasındaki ADMIN_PASS değeri)
+
+Geliştirici: Fadıl Efe Çelik • Yalova Üniversitesi Kurumsal Bilişim Uzmanlığı
