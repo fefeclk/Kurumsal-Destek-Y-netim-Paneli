@@ -13,7 +13,7 @@ Route::post('/sifre-sifirlama-talep', [WebTicketController::class, 'sifreSifirla
 Route::middleware('auth')->group(function () {
     Route::get('/', [WebTicketController::class, 'createForm'])->name('calisan.form');
     Route::post('/ticket-ekle', [WebTicketController::class, 'store'])->name('web.ticket.store');
-    Route::post('/sifre-degistir', [WebTicketController::class, 'sifreDegistir'])->name('calisan.sifre.degistir');
+   Route::post('/sifre-degistir', [WebTicketController::class, 'sifreDegistir'])->middleware('throttle:6,1')->name('calisan.sifre.degistir');
 });
 
 // 2FA DOĞRULAMA ROTALARI
