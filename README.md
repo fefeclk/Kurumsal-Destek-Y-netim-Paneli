@@ -35,8 +35,8 @@ git clone [https://github.com/fefeclk/Kurumsal-Destek-Y-netim-Paneli.git](https:
 cd Kurumsal-Destek-Y-netim-Paneli
 2. Paketleri Yükleyin
 
-Bash
 composer install
+
 3. Ayar Dosyasını (Environment) Hazırlayın.env.example dosyasının adını .env olarak değiştirin ve Mail ayarlarınızı girin. (Veritabanı ayarı varsayılan olarak SQLite kalmalıdır):
 
 Kod snippet'i
