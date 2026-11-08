@@ -23,7 +23,7 @@
 <body class="bg-slate-900 text-slate-100 min-h-screen p-6 transition-colors duration-300">
     <div class="max-w-5xl mx-auto space-y-6">
         
-        <!-- Üst Başlık Barı -->
+        {{-- Üst Başlık Barı --}}
         <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-lg">
             <div>
                 <span class="bg-indigo-600/20 text-indigo-400 border border-indigo-500/40 text-xs font-mono px-2.5 py-1 rounded">DOKÜMANTASYON</span>
@@ -41,7 +41,7 @@
             </div>
         </div>
 
-        <!-- Bilgi Kartları (Grid Yapısı) -->
+        {{-- Bilgi Kartları (Grid Yapısı) --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-md">

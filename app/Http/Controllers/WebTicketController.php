@@ -73,9 +73,9 @@ class WebTicketController extends Controller
         $kullanici = $request->input('kullanici_adi');
         $sifre = $request->input('sifre');
 
-        // Admin bilgilerini anında .env dosyasından çekiyoruz
-        $gecerliKullanici = env('ADMIN_USER', 'admin');
-        $gecerliSifre = env('ADMIN_PASS', '123456');
+        // Admin bilgilerini önbellek uyumlu config dosyasından çekiyoruz
+        $gecerliKullanici = config('kurumsal.admin_user');
+        $gecerliSifre = config('kurumsal.admin_pass');
 
         if ($kullanici === $gecerliKullanici && $sifre === $gecerliSifre) {
             $request->session()->put('it_admin_logged_in', true);
@@ -116,7 +116,7 @@ class WebTicketController extends Controller
             'yeni_sifre' => 'required|min:6'
         ]);
 
-        $mevcutSifre = env('ADMIN_PASS', '123456');
+       $mevcutSifre = config('kurumsal.admin_pass');
 
         if ($request->eski_sifre !== $mevcutSifre) {
             return back()->with('hata', 'Eski şifrenizi yanlış girdiniz!');

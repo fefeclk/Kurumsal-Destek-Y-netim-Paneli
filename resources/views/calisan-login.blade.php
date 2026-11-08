@@ -56,14 +56,14 @@
             <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg transition">Giriş Yap →</button>
         </form>
 
-        <!-- EKLENEN KISIM: ŞİFREMİ UNUTTUM -->
+        {{-- EKLENEN KISIM: ŞİFREMİ UNUTTUM --}}
         <div class="pt-4 border-t border-slate-700 text-center text-xs text-slate-400 space-y-2">
             <div><button type="button" onclick="document.getElementById('sifre_modal').classList.remove('hidden')" class="text-amber-400 hover:underline">Şifremi Unuttum</button></div>
             <div>Hesabınız yoksa lütfen <a href="{{ route('admin.login') }}" class="text-blue-400 hover:underline">IT Departmanı (Admin)</a> ile görüşün.</div>
         </div>
     </div>
 
-    <!-- GİZLİ ŞİFRE SIFIRLAMA PENCERESİ (MODAL) -->
+    {{-- GİZLİ ŞİFRE SIFIRLAMA PENCERESİ (MODAL) --}}
     <div id="sifre_modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-4">
         <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 w-full max-w-sm shadow-2xl relative">
             <button type="button" onclick="document.getElementById('sifre_modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-lg">✕</button>

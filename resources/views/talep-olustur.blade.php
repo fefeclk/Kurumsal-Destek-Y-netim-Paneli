@@ -34,7 +34,7 @@
 <body class="bg-slate-900 text-slate-100 min-h-screen p-6 flex flex-col justify-between transition-colors duration-300 relative">
     <div class="max-w-3xl mx-auto w-full space-y-6">
         
-        <!-- Üst Başlık Barı ve Aksiyon Butonları -->
+        {{-- Üst Başlık Barı ve Aksiyon Butonları --}}
         <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-lg">
             <div>
                 <span class="bg-blue-600/20 text-blue-400 border border-blue-500/40 text-xs font-mono px-2.5 py-1 rounded">KURUMSAL İÇ PORTAL</span>
@@ -43,7 +43,7 @@
             </div>
             <div class="flex flex-wrap items-center gap-2">
                 
-                <!-- Şifre Değiştirme Butonu (EKSİKTİ, EKLENDİ) -->
+                {{-- Şifre Değiştirme Butonu (EKSİKTİ, EKLENDİ) --}}
                 <button type="button" onclick="document.getElementById('sifre_modal').classList.remove('hidden')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg transition shadow">
                     🔑 Şifre Değiştir
                 </button>
@@ -75,7 +75,7 @@
             </div>
         @endif
 
-        <!-- Ana Ticket Oluşturma Formu -->
+        {{-- Ana Ticket Oluşturma Formu --}}
         <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
             <form id="ticket_form" action="{{ route('web.ticket.store') }}" method="POST" class="space-y-6 text-sm">
                 @csrf
@@ -86,10 +86,10 @@
                 <input type="hidden" id="kok_neden" name="kok_neden" value="">
                 <input type="hidden" id="operasyonel_risk" name="operasyonel_risk" value="">
 
-                <!-- Güvenlik: İsim artık arka planda gizlice gidiyor -->
+                {{-- Güvenlik: İsim artık arka planda gizlice gidiyor --}}
                 <input type="hidden" name="calisan_ad_soyad" value="{{ auth()->user()->name }}">
 
-                <!-- 1. Bölüm: Çalışan Kimlik ve Departman Bilgileri -->
+                {{-- 1. Bölüm: Çalışan Kimlik ve Departman Bilgileri --}}
                 <div class="border-b border-slate-700 pb-5">
                     <h2 class="text-sm font-bold text-blue-400 uppercase tracking-wider mb-3">1. Bildirimi Yapan Çalışan Bilgileri</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
@@ -116,7 +116,7 @@
                     </div>
                 </div>
 
-                <!-- 2. Bölüm: Arıza Açıklaması -->
+                {{-- 2. Bölüm: Arıza Açıklaması --}}
                 <div class="border-b border-slate-700 pb-5 space-y-3">
                     <div class="flex justify-between items-center">
                         <h2 class="text-sm font-bold text-blue-400 uppercase tracking-wider">2. Yaşadığınız Sorun veya Talep</h2>
@@ -130,7 +130,7 @@
                     </div>
                 </div>
 
-                <!-- 3. Bölüm: Eksiksiz Checkbox'lar -->
+                {{-- 3. Bölüm: Eksiksiz Checkbox'lar --}}
                 <div class="space-y-4">
                     <h2 class="text-sm font-bold text-blue-400 uppercase tracking-wider">3. Gözlemlenen Durumlar (Checkbox Seçimi)</h2>
                     
@@ -182,13 +182,13 @@
         </div>
     </div>
 
-    <!-- Alt Bilgi ve Admin Giriş Linki -->
+    {{-- Alt Bilgi ve Admin Giriş Linki --}}
     <footer class="max-w-3xl mx-auto w-full mt-8 pt-4 border-t border-slate-800 flex justify-between items-center text-xs text-slate-500">
         <span>Kurumsal Bilişim Destek Portalı</span>
         <a href="{{ route('admin.login') }}" class="hover:text-slate-300 transition">🔒 IT Personel / Admin Girişi</a>
     </footer>
 
-    <!-- GİZLİ ŞİFRE DEĞİŞTİRME PENCERESİ (MODAL) (EKSİKTİ, EKLENDİ) -->
+    {{-- GİZLİ ŞİFRE DEĞİŞTİRME PENCERESİ (MODAL) (EKSİKTİ, EKLENDİ) --}}
     <div id="sifre_modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-4">
         <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 w-full max-w-sm shadow-2xl relative">
             <button type="button" onclick="document.getElementById('sifre_modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-lg">✕</button>
@@ -206,7 +206,7 @@
         </div>
     </div>
 
-    <!-- Scriptler: Tema ve AI Form Gönderimi -->
+    {{-- Scriptler: Tema ve AI Form Gönderimi --}}
     <script>
         // Tema Ayarı
         if (localStorage.getItem('theme') === 'light') {

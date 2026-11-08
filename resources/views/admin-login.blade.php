@@ -18,7 +18,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-6 transition-colors duration-300 relative">
     
-    <!-- Sağ Üst Tema Butonu -->
+    {{-- Sağ Üst Tema Butonu --}}
     <div class="absolute top-6 right-6">
         <button type="button" onclick="temaDegistir()" class="bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded-xl transition shadow-lg">
             <span id="tema_ikon">☀️</span> Tema
