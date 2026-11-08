@@ -51,12 +51,12 @@ MAIL_ENCRYPTION=smtps
 4. Kurulum İşlemlerini Tamamlayın
 Aşağıdaki komutları sırasıyla çalıştırarak uygulama anahtarını üretin, veritabanını oluşturun ve tabloları kurun:
 
-Bash
+
 php artisan key:generate
 php artisan migrate
 5. Sunucuyu Başlatın
 
-Bash
+
 php artisan serve
 Uygulama http://127.0.0.1:8000 adresinde kullanıma hazır olacaktır.
 
