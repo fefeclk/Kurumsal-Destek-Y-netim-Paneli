@@ -56,7 +56,7 @@ class WebTicketController extends Controller
             'etiketler' => $request->has('etiketler') ? implode(', ', $request->etiketler) : null,
             'yonetici_onayi_sart' => $request->has('yonetici_onayi_sart') ? true : false,
             'durum' => 'Açık (L1 Triyaj)',
-            'ticket_kodu' => 'TCK-' . rand(1000, 9999)
+            'ticket_kodu' => 'TCK-' . random_int(1000, 9999)
         ]);
 
         return redirect()->back()->with('basari', 'Talebiniz alınmıştır (Kayıt No: ' . $ticket->ticket_kodu . ').');
@@ -197,7 +197,7 @@ class WebTicketController extends Controller
             'kok_neden' => $user->id, 
             'operasyonel_risk' => 'Kullanıcı sisteme giriş yapamıyor.',
             'durum' => 'Açık (L1 Triyaj)',
-            'ticket_kodu' => 'RST-' . rand(1000, 9999)
+            'ticket_kodu' => 'RST-' . random_int(1000, 9999)
         ]);
 
         return back()->with('basari', 'Şifre sıfırlama talebiniz Admin paneline (Ticket olarak) iletildi.');
@@ -241,7 +241,7 @@ class WebTicketController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             if ($request->user() && is_null($request->user()->email_verified_at)) {
-                $kod = rand(100000, 999999);
+                $kod = random_int(100000, 999999);
                 $request->session()->put('2fa_kodu', $kod);
                 Mail::to($request->user()->email)->send(new TwoFactorMail($kod));
                 return redirect()->route('2fa.form');
