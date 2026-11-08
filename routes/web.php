@@ -34,7 +34,7 @@ Route::prefix('admin')->group(function () {
     Route::post('/calisan-ekle', [WebTicketController::class, 'calisanEkle'])->name('admin.calisan.ekle');
     Route::delete('/calisan-sil/{user}', [WebTicketController::class, 'calisanSil'])->name('admin.calisan.sil');
     
-    Route::post('/sifre-sifirla-oto/{ticket}', [WebTicketController::class, 'sifreSifirlaOto'])->name('admin.sifre.oto');
+    Route::post('/sifre-sifirla-oto/{ticket}', [WebTicketController::class, 'sifreSifirlaOto'])->middleware('throttle:6,1')->name('admin.sifre.oto');
     Route::post('/calisan-sifre-sifirla/{user}', [WebTicketController::class, 'calisanSifreSifirla'])->name('admin.calisan.sifirla');
     
     // YENİ: Admin Kendi Şifresini Değiştirme Rotası
