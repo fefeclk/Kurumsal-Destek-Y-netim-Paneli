@@ -31,7 +31,9 @@ Route::middleware('auth')->group(function () {
 
 // 4. KORUMALI IT ADMIN PANELİ
 Route::prefix('admin')->middleware(['auth', IsAdminMiddleware::class])->group(function () {
-    Route::post('/admin-sifre-degistir', [AdminController::class, 'adminSifreDegistir'])->name('admin.sifre.degistir');
+    // KORUMA EKLENDİ: Admin kendi şifresini değiştirirken saniyede onlarca istek atılmasını engelle
+    Route::post('/admin-sifre-degistir', [AdminController::class, 'adminSifreDegistir'])->name('admin.sifre.degistir')->middleware('throttle:6,1');
+    
     Route::get('/', [AdminController::class, 'adminPanel'])->name('admin.panel');
     Route::get('/sss', [AdminController::class, 'sss'])->name('admin.sss');
     Route::post('/calisan-ekle', [AdminController::class, 'calisanEkle'])->name('admin.calisan.ekle');
@@ -39,8 +41,12 @@ Route::prefix('admin')->middleware(['auth', IsAdminMiddleware::class])->group(fu
     
     Route::post('/yetki-degistir/{user}', [AdminController::class, 'yetkiDegistir'])->name('admin.yetki.degistir');
     
-    Route::post('/sifre-sifirla-oto/{ticket}', [AdminController::class, 'sifreSifirlaOto'])->name('admin.sifre.oto');
-    Route::post('/calisan-sifre-sifirla/{user}', [AdminController::class, 'calisanSifreSifirla'])->name('admin.calisan.sifirla');
+    // KORUMA EKLENDİ: Otomatik şifre üretiminde ve e-posta gönderiminde spamı engelle
+    Route::post('/sifre-sifirla-oto/{ticket}', [AdminController::class, 'sifreSifirlaOto'])->name('admin.sifre.oto')->middleware('throttle:6,1');
+    
+    // KORUMA EKLENDİ: Manuel çalışan şifresi sıfırlarken art arda tıklanmasını engelle
+    Route::post('/calisan-sifre-sifirla/{user}', [AdminController::class, 'calisanSifreSifirla'])->name('admin.calisan.sifirla')->middleware('throttle:6,1');
+    
     Route::post('/ticket/{ticket}/durum', [WebTicketController::class, 'durumGuncelle'])->name('web.ticket.status');
     Route::delete('/ticket/{ticket}', [WebTicketController::class, 'destroy'])->name('web.ticket.destroy');
 });
