@@ -18,7 +18,7 @@ composer install
 Proje dizinindeki `.env.example` dosyasının adını `.env` olarak değiştirin. 
 Şifre sıfırlama ve sistem bildirim e-postalarının çalışması için kendi SMTP (Mail) ayarlarınızı girin. *(Gmail, Outlook, Yandex veya kendi kurumsal sunucunuzu kullanabilirsiniz. Sistem varsayılan veritabanı olarak SQLite kullanmaktadır, DB ayarı değiştirilmemelidir)*:
 
-```env
+env
 DB_CONNECTION=sqlite
 
 MAIL_MAILER=smtp
