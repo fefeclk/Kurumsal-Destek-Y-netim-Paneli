@@ -56,19 +56,23 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex justify-between items-center shadow">
+            <!-- TÜMÜ -->
+            <div onclick="filterTickets('all')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex justify-between items-center shadow cursor-pointer transition transform hover:scale-105 hover:bg-slate-700/50">
                 <div><span class="text-xs text-slate-400 block">Sisteme Düşen Ticket</span><span class="text-2xl font-bold text-white">{{ $tickets->count() }}</span></div>
                 <span class="text-2xl bg-blue-900/40 p-2.5 rounded-lg border border-blue-700/50">📊</span>
             </div>
-            <div class="bg-slate-800 p-4 rounded-xl border border-red-900/60 flex justify-between items-center shadow">
+            <!-- KRİTİK -->
+            <div onclick="filterTickets('kritik')" class="bg-slate-800 p-4 rounded-xl border border-red-900/60 flex justify-between items-center shadow cursor-pointer transition transform hover:scale-105 hover:bg-red-900/20">
                 <div><span class="text-xs text-red-400 block">Kritik Vakalar</span><span class="text-2xl font-bold text-red-400">{{ $tickets->where('onem_seviyesi', 'Kritik')->count() }}</span></div>
                 <span class="text-2xl bg-red-900/40 p-2.5 rounded-lg border border-red-700/50">🚨</span>
             </div>
-            <div class="bg-slate-800 p-4 rounded-xl border border-amber-900/60 flex justify-between items-center shadow">
+            <!-- ONAY BEKLEYEN -->
+            <div onclick="filterTickets('onay')" class="bg-slate-800 p-4 rounded-xl border border-amber-900/60 flex justify-between items-center shadow cursor-pointer transition transform hover:scale-105 hover:bg-amber-900/20">
                 <div><span class="text-xs text-amber-400 block">Onay Bekleyen</span><span class="text-2xl font-bold text-amber-400">{{ $tickets->where('yonetici_onayi_sart', true)->count() }}</span></div>
                 <span class="text-2xl bg-amber-900/40 p-2.5 rounded-lg border border-amber-700/50">🔒</span>
             </div>
-            <div class="bg-slate-800 p-4 rounded-xl border border-emerald-900/60 flex justify-between items-center shadow">
+            <!-- ÇÖZÜLENLER -->
+            <div onclick="filterTickets('cozuldu')" class="bg-slate-800 p-4 rounded-xl border border-emerald-900/60 flex justify-between items-center shadow cursor-pointer transition transform hover:scale-105 hover:bg-emerald-900/20">
                 <div><span class="text-xs text-emerald-400 block">Çözülen Kayıtlar</span><span class="text-2xl font-bold text-emerald-400">{{ $tickets->where('durum', 'Çözüldü')->count() }}</span></div>
                 <span class="text-2xl bg-emerald-900/40 p-2.5 rounded-lg border border-emerald-700/50">✅</span>
             </div>
@@ -120,7 +124,6 @@
                                 <div>
                                     <div class="flex items-center gap-2">
                                         <div class="font-bold text-white text-sm">👤 {{ $c->name }}</div>
-                                        {{-- YENİ: Kimin Admin Olduğunu Gösteren Rozet --}}
                                         @if($c->is_admin)
                                             <span class="bg-purple-900/60 text-purple-300 border border-purple-700 text-[9px] px-1.5 py-0.5 rounded-md font-bold uppercase">Admin</span>
                                         @endif
@@ -135,7 +138,6 @@
                                     @endif
 
                                     <div class="flex gap-2">
-                                        {{-- YENİ: YETKİ DEĞİŞTİRME BUTONU --}}
                                         <form action="{{ route('admin.yetki.degistir', $c->id) }}" method="POST">
                                             @csrf
                                             <button type="submit" title="{{ $c->is_admin ? 'Admin yetkisini al' : 'Admin yetkisi ver' }}" class="text-[10px] px-2 py-1 rounded transition border 
@@ -171,7 +173,12 @@
 
         <div class="space-y-4">
             @foreach($tickets as $t)
-                <div class="bg-slate-800 rounded-2xl border border-slate-700 shadow-md overflow-hidden">
+                {{-- DÜZELTİLEN KISIM: data- etiketleri doğru şekilde div'in içine alındı --}}
+                <div class="ticket-item bg-slate-800 rounded-2xl border border-slate-700 shadow-md overflow-hidden"
+                     data-durum="{{ $t->durum }}" 
+                     data-onem="{{ $t->onem_seviyesi }}" 
+                     data-onay="{{ $t->yonetici_onayi_sart ? '1' : '0' }}">
+                     
                     <div onclick="toggleAccordion('ticket_{{ $t->id }}')" class="p-4 cursor-pointer flex flex-wrap justify-between items-center gap-3 hover:bg-slate-700/50 transition select-none">
                         <div class="flex flex-wrap items-center gap-3">
                             <span class="font-mono text-xs bg-slate-900 border border-slate-700 px-3 py-1 rounded-lg text-blue-400 font-bold">{{ $t->ticket_kodu }}</span>
@@ -291,17 +298,82 @@
         </div>
     </div>
 
+    <!-- YÜKLEME EKRANI (OVERLAY) -->
+    <div id="page-loader" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[9999] flex-col justify-center items-center hidden">
+        <svg class="animate-spin h-14 w-14 text-blue-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="text-blue-400 font-bold tracking-widest text-sm animate-pulse">İŞLEM YAPILIYOR...</span>
+    </div>
+
+    <!-- JAVASCRIPT KODLARI -->
     <script>
+        // TEMA YÖNETİMİ
         if (localStorage.getItem('theme') === 'light') { document.documentElement.classList.add('light-mode'); if(document.getElementById('tema_ikon')) { document.getElementById('tema_ikon').innerText = '🌙'; document.getElementById('tema_yazı').innerText = 'Koyu Tema'; } }
         function temaDegistir() {
             const html = document.documentElement; const ikon = document.getElementById('tema_ikon'); const yazi = document.getElementById('tema_yazı');
             if (html.classList.contains('light-mode')) { html.classList.remove('light-mode'); localStorage.setItem('theme', 'dark'); if(ikon) { ikon.innerText = '☀️'; yazi.innerText = 'Açık Tema'; } } 
             else { html.classList.add('light-mode'); localStorage.setItem('theme', 'light'); if(ikon) { ikon.innerText = '🌙'; yazi.innerText = 'Koyu Tema'; } }
         }
+
+        // ACCORDION (AÇILIR KAPANIR MENÜ)
         function toggleAccordion(id) {
             const detay = document.getElementById('detay-' + id); const ok = document.getElementById('ok-' + id);
             if (detay.classList.contains('hidden')) { detay.classList.remove('hidden'); ok.classList.add('rotate-180'); } 
             else { detay.classList.add('hidden'); ok.classList.remove('rotate-180'); }
+        }
+
+        // YÜKLEME EKRANI TETİKLEYİCİLERİ
+        window.addEventListener('beforeunload', function () {
+            const loader = document.getElementById('page-loader');
+            loader.classList.remove('hidden');
+            loader.classList.add('flex');
+        });
+
+        window.addEventListener('pageshow', function () {
+            const loader = document.getElementById('page-loader');
+            loader.classList.add('hidden');
+            loader.classList.remove('flex');
+        });
+
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function() {
+                const loader = document.getElementById('page-loader');
+                loader.classList.remove('hidden');
+                loader.classList.add('flex');
+            });
+        });
+
+        // TİCKET FİLTRELEME SİSTEMİ
+        function filterTickets(type) {
+            const loader = document.getElementById('page-loader');
+            if(loader) {
+                loader.classList.remove('hidden');
+                loader.classList.add('flex');
+                setTimeout(() => { loader.classList.add('hidden'); loader.classList.remove('flex'); }, 200);
+            }
+
+            const tickets = document.querySelectorAll('.ticket-item');
+            
+            tickets.forEach(ticket => {
+                let show = false;
+                if (type === 'all') {
+                    show = true;
+                } else if (type === 'kritik' && ticket.dataset.onem === 'Kritik') {
+                    show = true;
+                } else if (type === 'onay' && ticket.dataset.onay === '1') {
+                    show = true;
+                } else if (type === 'cozuldu' && ticket.dataset.durum === 'Çözüldü') {
+                    show = true;
+                }
+
+                if (show) {
+                    ticket.style.display = 'block';
+                } else {
+                    ticket.style.display = 'none';
+                }
+            });
         }
     </script>
 </body>

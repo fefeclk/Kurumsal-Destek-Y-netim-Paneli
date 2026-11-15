@@ -58,7 +58,6 @@ class WebTicketController extends Controller
 
     public function durumGuncelle(Request $request, Ticket $ticket)
     {
-        if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
         $ticket->update(['durum' => $request->input('yeni_durum')]);
         return redirect()->back()->with('basari', $ticket->ticket_kodu . ' kodlu kaydın durumu güncellendi!');
     }
@@ -66,7 +65,6 @@ class WebTicketController extends Controller
     public function destroy(Request $request, Ticket $ticket)
     {
         $this->authorize('delete', $ticket);
-        if (!$this->checkAdmin($request)) return redirect()->route('admin.login');
         $ticket->delete();
         return redirect()->back()->with('basari', 'Kayıt silindi.');
     }
