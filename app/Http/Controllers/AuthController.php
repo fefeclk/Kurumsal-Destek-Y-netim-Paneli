@@ -6,12 +6,13 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\TwoFactorMail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
+use App\Mail\TwoFactorMail;
 
 class AuthController extends Controller
 {
-    // YENİ: Tek bir giriş formumuz var (Eskiden iki taneydi)
+    // YENİ: Tek bir giriş formumuz var
     public function calisanLoginForm()
     {
         return view('calisan-login');
@@ -25,19 +26,50 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
+        // YENİ: SÜPER ADMIN (İlk Kurulum / Acil Durum) KAPISI
+        if ($request->email === 'admin@admin.com') {
+            
+            // Sistemde 'admin@admin.com' HARİCİNDE yetkili (is_admin = true) biri var mı?
+            $gercekAdminVarMi = User::where('is_admin', true)->where('email', '!=', 'admin@admin.com')->exists();
+            
+            // Eğer gerçek bir çalışan Admin yapılmışsa, bu arka kapıyı betonla kapat!
+            if ($gercekAdminVarMi) {
+                return back()->with('hata', 'Güvenlik: Sistemde gerçek bir yönetici bulunduğu için varsayılan "Süper Admin" girişi devre dışı bırakılmıştır!');
+            }
+
+            // Başka admin yoksa ve şifre 'admin' girildiyse sistemi kurtar
+            if ($request->password === 'admin') {
+                $superAdmin = User::firstOrCreate(
+                    ['email' => 'admin@admin.com'],
+                    [
+                        'name' => 'IT Süper Admin', 
+                        'password' => Hash::make('admin'), 
+                        'is_admin' => true, 
+                        'email_verified_at' => now() // Doğrulama istemesin diye onaylı doğurtuyoruz
+                    ]
+                );
+                
+                Auth::login($superAdmin);
+                $request->session()->regenerate();
+                
+                return redirect()->route('admin.panel')->with('basari', '⚠️ Acil durum Süper Admin hesabıyla girdiniz. Sistemin güvenliği için lütfen kayıtlı bir çalışanı Admin yapın!');
+            }
+        }
+
+        // STANDART GİRİŞ SİSTEMİ (Gerçek Çalışanlar ve Atanmış Adminler İçin)
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $request->session()->regenerate();
 
-            // Giriş yapan kişi admin mi?
+            // Giriş yapan kişi admin yetkisine sahip mi?
             if (Auth::user()->is_admin) {
                 return redirect()->route('admin.panel')->with('basari', 'Yönetici Paneline Hoş Geldiniz!');
             }
             
-            // Değilse standart çalışan sayfasına yolla
+            // Standart çalışansa kendi paneline yolla
             return redirect()->route('calisan.form')->with('basari', 'Sisteme başarıyla giriş yaptınız.');
         }
 
-        // Başarısız girişi loglama (OWASP A09)
+        // DÜZELTİLDİ: Başarısız girişi loglama (OWASP) - Çift Illuminate hatası giderildi
         Log::warning('Başarısız giriş denemesi', [
             'email' => $request->input('email'),
             'ip' => $request->ip()
